@@ -28,8 +28,15 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+const expenseCollection = client.db('expenseTracker').collection('expenses')
 
-    
+// add expenses api
+
+app.post('/expenses' , async (req , res)=> {
+const expenseData = req.body;
+const result = await expenseCollection.insertOne(expenseData)
+res.send(result)
+})
 
   
 
