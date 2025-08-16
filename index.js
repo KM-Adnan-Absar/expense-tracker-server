@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
@@ -34,11 +34,54 @@ const expenseCollection = client.db('expenseTracker').collection('expenses')
 
 app.post('/expenses' , async (req , res)=> {
 const expenseData = req.body;
+
+// validation Title
+if( expenseData.title.trim().length < 3 ){
+  return res.status(400).json({error: 'Title must be at least 3 characters long.' })
+}
+// validation amount
+
+if( isNaN(expenseData.amount) || Number(expenseData.amount) <=0 ){
+  return res.status(400).json({error: 'Amount  must be a number and greater than 0.'})
+}
+
+// validation Date
+if(isNaN(Date.parse(expenseData.date))){
+  return res.status(400).json({error:'Date must be a valid date.'})
+}
 const result = await expenseCollection.insertOne(expenseData)
 res.send(result)
 })
 
-  
+// get all expenses 
+
+app.get('/expenses' ,  async(req , res) => {
+  const result = await expenseCollection.find().toArray()
+  res.send(result)
+})
+
+// Update expense route 
+app.patch('/expenses/:id' , async (req, res) => {
+  const expense = req.body;
+  const id = req.params.id;
+  const filter = {_id: new ObjectId(id)}
+  const updatedDoc = {
+    $set: {
+      title: expense.title,
+      amount: expense.amount,
+      category: expense.category,
+      date: expense.date
+    }
+  }
+  const result = await expenseCollection.updateOne(filter , updatedDoc)
+  res.send(result);
+})
+
+app.get('/expenses/:id' , async(req ,res) => {
+  const id = req.params.id;
+  const result = await expenseCollection.findOne({_id: new ObjectId(id)});
+  res.send(result)
+})
 
     
     // Send a ping to confirm a successful connection
@@ -57,5 +100,5 @@ app.get('/', (req, res) =>{
 })
 
 app.listen(port, () =>{
-    console.log(`ema john server is running on port: ${port}`);
+    console.log(`Expense server is running on port: ${port}`);
 })
