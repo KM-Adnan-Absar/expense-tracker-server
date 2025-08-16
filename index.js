@@ -73,13 +73,13 @@ async function run() {
       const result = await expenseCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
-// Get a single expense by ID
-app.get('/expenses/:id', async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: new ObjectId(id) };
-    const result = await expenseCollection.findOne(query);
-    res.send(result);
-});
+    // Get a single expense by ID
+    app.get('/expenses/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await expenseCollection.findOne(query);
+      res.send(result);
+    });
 
 
     // Delete expense
